@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        /* Globale Stile für den Körper */
+        body {
+            font-family: 'Verdana', sans-serif;
+            background-color: #050d33; /* Dunkler Hintergrund */
+            color: #fff; /* Weiße Schriftfarbe */
+            margin: 0;
+            padding: 0;
+            text-align: center; /* Text in der Mitte ausrichten */
+        }
+
+        /* Header-Stile */
+        header {
+            background-color: #340336; /* Lila Hintergrund */
+            padding: 15px;
+        }
+
+        /* Hauptbereich-Stile */
+        main {
+            padding: 15px;
+        }
+
+        /* Stile für Eingabefelder und Dropdowns */
+        .input-container input,
+        .input-container select {
+            padding: 8px;
+            margin: 8px 0;
+            font-size: 15px;
+            width: 180px; /* Breite der Eingabefelder */
+        }
+
+        /* Stile für den Button */
+        .btn {
+            padding: 8px 16px;
+            font-size: 15px;
+            background-color: #0275d8; /* Blaue Hintergrundfarbe */
+            color: white; /* Weiße Schriftfarbe */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer; /* Zeiger-Cursor für den Button */
+        }
+
+        .btn:hover {
+            background-color: #01549b; /* Dunklerer Blau-Ton, wenn der Button mit der Maus berührt wird */
+        }
+
+        /* Stile für die Ergebnisnachricht */
+        .message {
+            margin-top: 18px;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        /* Stile für das angezeigte Kapital */
+        .balance {
+            margin-top: 18px;
+            font-size: 19px;
+            font-weight: bold;
+        }
+        /* Container für das Roulette-Rad */
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 15px auto; /* Zentriert das Rad */
+            border-radius: 50%; /* Rundes Rad */
+            border: 9px solid #f0f0f0; /* Rand um das Rad */
+            overflow: hidden;
+            background-color: #fff; /* Hintergrund des Rad-Containers */
+        }
+
+        /* Stile für das Roulette-Rad */
+        .wheel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: conic-gradient(#ff0000 0deg 10deg, #000000 10deg 20deg, #ff0000 20deg 30deg, #000000 30deg 40deg,
+                #ff0000 40deg 50deg, #000000 50deg 60deg, #ff0000 60deg 70deg, #000000 70deg 80deg,
+                #ff0000 80deg 90deg, #000000 90deg 100deg, #ff0000 100deg 110deg, #000000 110deg 120deg,
+                #ff0000 120deg 130deg, #000000 130deg 140deg, #ff0000 140deg 150deg, #000000 150deg 160deg,
+                #ff0000 160deg 170deg, #000000 170deg 180deg, #ff0000 180deg 190deg, #000000 190deg 200deg,
+                #ff0000 200deg 210deg, #000000 210deg 220deg, #ff0000 220deg 230deg, #000000 230deg 240deg,
+                #ff0000 240deg 250deg, #000000 250deg 260deg, #ff0000 260deg 270deg, #000000 270deg 280deg,
+                #ff0000 280deg 290deg, #000000 290deg 300deg, #ff0000 300deg 310deg, #000000 310deg 320deg,
+                #ff0000 320deg 330deg, #000000 330deg 340deg, #ff0000 340deg 350deg, #008000 350deg 360deg);
+            border-radius: 50%; /* Runde Form des Rads */
+            transition: transform 4s ease-out; /* Sanfte Animation der Rad-Drehung */
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header-Bereich mit Titel des Spiels -->
+    <header>
+        <h1> Der Höllenfummelbunker!</h1>
+    </header>
+
+    <!-- Hauptbereich des Spiels -->
+    <main>
+        <h2>Egal was du wettest die Bank gewinnt immer!</h2>
+        
+        <!-- Eingabefeld für die Zahl, auf die gesetzt wird -->
+        <div class="input-container">
+            <label for="number-bet">Wette auf eine Zahl:</label>
+            <input type="number" id="number-bet" min="0" max="36" />
+        </div>
+        
+        <!-- Dropdown für die Auswahl der Farbe (Rot oder Schwarz) -->
+        <div class="input-container">
+            <label for="color-bet">Wette auf eine Farbe:</label>
+            <select id="color-bet">
+                <option value="rot">Rot</option>
+                <option value="schwarz">Schwarz</option>
+            </select>
+        </div>
+        
+        <!-- Eingabefeld für den Einsatzbetrag -->
+        <div class="input-container">
+            <label for="bet-amount">Einsatz (in €):</label>
+            <input type="number" id="bet-amount" min="1" />
+        </div>
+        
+        <!-- Button zum Starten des Spiels -->
+        <button class="btn" onclick="startSpin()">Jetzt Drehen</button>
+
+        <!-- Container für das animierte Roulette-Rad -->
+        <div class="wheel-container">
+            <div class="wheel"></div>
+        </div>
+
+        <!-- Anzeige des Ergebnisses und des aktuellen Kapitals -->
+        <p class="message" id="spin-result"></p>
+        <p class="balance" id="current-balance">Dein mikriges Kapital: 100 €</p>
+    </main>
+
+    <script>
+        let balance = 100;  // Startkapital des Spielers
+
+        // Funktion, die ausgelöst wird, wenn der Button "Jetzt Drehen" geklickt wird
+        function startSpin() {
+            // Eingabewerte des Spielers abrufen
+            const betNumber = parseInt(document.getElementById('number-bet').value);  // Zahlenset
+            const betColor = document.getElementById('color-bet').value;  // Farbwahl
+            const betAmount = parseInt(document.getElementById('bet-amount').value);  // Einsatzbetrag
+            const resultMessage = document.getElementById('spin-result');  // Ergebnisnachricht
+            const balanceDisplay = document.getElementById('current-balance');  // Anzeige des Kapitals
+            const rouletteWheel = document.querySelector('.wheel');  // Das animierte Roulette-Rad
+
+            // Überprüfen, ob der Einsatz gültig ist (positiv und nicht größer als das Kapital)
+            if (isNaN(betAmount) || betAmount <= 0 || betAmount > balance) {
+                resultMessage.innerHTML = 'Versuchst du etwa mit Geld zu spielen was du nicht hast! Verspiel nur dein Kapital, nicht mehr!';
+                return;  // Abbruch, wenn der Einsatz ungültig ist
+            }
+
+            // Zufallszahl für das Roulette-Rad (0-36)
+            const drawnNumber = Math.floor(Math.random() * 37);
+            const drawnColor = getColor(drawnNumber);  // Bestimmt die Farbe für die gezogene Zahl
+            const rotationAngle = 360 * 5 + (drawnNumber * 360 / 37);  // Berechnet den Drehwinkel
+
+            // Drehung des Rads durchführen
+            rouletteWheel.style.transform = `rotate(${rotationAngle}deg)`;
+
+            // Ergebnis nach der Drehung anzeigen
+            setTimeout(() => {
+                let message = `Gezogene Zahl: ${drawnNumber}, Farbe: ${drawnColor}. `;
+                let payout = 0;  // Auszahlung nach Ergebnis
+
+                // Überprüfen, ob der Spieler gewonnen hat
+                if (betNumber === drawnNumber && betColor === drawnColor) {
+                    payout = betAmount * 70;  // Zahl und Farbe richtig
+                    message += `Heute ist dein Glückstag, nutz es das Glück hällt nicht ewig. Doppelt oder nichts? ${payout} €!`;
+                } else if (betNumber === drawnNumber) {
+                    payout = betAmount * 35;  // Nur die Zahl richtig
+                    message += `Glück gehabt, aber nochmal gewinnst du nicht! ${payout} € für die Zahl!`;
+                } else if (betColor === drawnColor) {
+                    payout = betAmount * 2;  // Nur die Farbe richtig
+                    message += `WOOW du hast gewonnen, 50v50 Change. Das ist nicht schwer ${payout} € lass es dir schmecken, aber gewöhn dich nicht an Siege!`;
+                } else {
+                    message += 'Tja, nicht jeder kann gewinnen, vor allem nicht du';  // Kein Gewinn
+                }
+
+                // Kapital des Spielers aktualisieren
+                balance += payout - betAmount;
+                balanceDisplay.innerHTML = `Dein Kapital: ${balance} €`;
+
+                // Ergebnis anzeigen
+                resultMessage.innerHTML = message;
+
+                // Überprüfen, ob der Spieler kein Kapital mehr hat
+                if (balance <= 0) {
+                    resultMessage.innerHTML += "<br> HAHAHA du bist pleite mein Lieber, hat dir deine Mama nicht gesagt, du sollst die Finger vom Glücksspiel lassen!";
+                    balanceDisplay.innerHTML = "Dein Kapital: 0 €";
+                }
+            }, 4000);  // Warte 4 Sekunden für die Animation
+        }
+
+        // Funktion zur Bestimmung der Farbe der gezogenen Zahl (rot oder schwarz)
+        function getColor(number) {
+            const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+            return redNumbers.includes(number) ? 'rot' : 'schwarz';  // Rot für bestimmte Zahlen
+        }
+    </script>
+</body>
+
+</html>
